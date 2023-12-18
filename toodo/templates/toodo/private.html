@@ -20,16 +20,15 @@
             <div class="modal-body">
               <form id="myform" method="post" action="{% url 'toodo:private_create' %}">
                 {% csrf_token %}
-                {% for field in form %}
                 <div class="form-group col">
-                  <input type="text" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" placeholder="{{ field.label }}">
+                  <input type="text" class="form-control mb-2" id="todo_text" name="todo_text" placeholder="Todo">
                 </div>
-                {% endfor %}
               </form>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" form="myform">Save</button>
+                <button type="button" class="btn btn-secondary" id="expandForm">Expand</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="myform">Save</button>
             </div>
           </div>
         </div>
@@ -84,6 +83,24 @@
     {% endif %}
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
+         $(document).ready(function() {
+            const formFieldsContainer = $('#myform');
+            const expandFormButton = $('#expandForm');
+            const maxExpansions = 5;
+            let expansionCount = 1;
+            expandFormButton.on('click', function() {
+                if (expansionCount < maxExpansions) {
+                    const newInput = $('<div class="form-group col mb-2">' +
+                           '<input type="text" class="form-control" id="todo_text' + expansionCount + '" name="todo_text" placeholder="Todo">' +
+                         '</div>');
+                    formFieldsContainer.append(newInput);
+                    expansionCount++;
+                    if (expansionCount == maxExpansions) {
+                    expandFormButton.hide();
+                    }
+                } 
+            });
+        });
         function onCompDelShare(item) {
             const itemUrl = $(item).data('url');
             $('#mycompdelshareform').attr('action', itemUrl);

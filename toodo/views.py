@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .models import PrivateTodo, PublicTodo
 from .forms import PrivateTodoForm
 from django.utils import timezone
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, QueryDict
 from django.urls import reverse
 
 @login_required
@@ -13,18 +13,18 @@ def index(request):
 
 def private(request):
     private_todos = PrivateTodo.objects.filter(user=request.user)
-    form = PrivateTodoForm()
-    return render(request, 'toodo/private.html', {'private_todos': private_todos, 'form': form})
+    return render(request, 'toodo/private.html', {'private_todos': private_todos})
 
 @login_required
 def private_create(request):
-    if request.method == 'POST':
-        form = PrivateTodoForm(request.POST)
-        if form.is_valid():
-            todo_text = form.cleaned_data['todo_text']
-            PrivateTodo.objects.create(user=request.user,
-                                        todo_text=todo_text,
-                                        pub_date=timezone.now())
+    if request.method == 'POST' and request.POST.__contains__('todo_text'):
+        for todo in request.POST.getlist('todo_text'):
+            form = PrivateTodoForm(QueryDict("todo_text=" + todo))
+            if form.is_valid():
+                todo_text = form.cleaned_data['todo_text']
+                PrivateTodo.objects.create(user=request.user,
+                                            todo_text=todo_text,
+                                            pub_date=timezone.now()) 
     return HttpResponseRedirect(reverse('toodo:private'))
 
 @login_required
