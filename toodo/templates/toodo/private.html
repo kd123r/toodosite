@@ -1,0 +1,107 @@
+{% extends 'toodo/base.html' %}
+
+{% block extra_content %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Todo</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">New Todo</h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="myform" method="post" action="{% url 'toodo:private_create' %}">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group col">
+                  <input type="text" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" placeholder="{{ field.label }}">
+                </div>
+                {% endfor %}
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" form="myform">Save</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="myModalLabel">Edit Todo</h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="myeditform" method="post">
+                {% csrf_token %}
+                <div class="form-group col">
+                    <input type="text" class="form-control" id="edit_todo_text" name="todo_text">
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" form="myeditform">Save</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% if private_todos %}
+    <ul class="list-group list-group-flush mt-4">
+    {% for todo in private_todos %}
+        <li class="list-group-item list-group-item-action" onmouseover="showOptions(this)" onmouseout="hideOptions(this)">
+            <form id="mycompdelshareform" method="post">
+                {% csrf_token %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="defaultCheck{{ todo.id }}" style="display: none;" {% if todo.completed %}checked{% endif %} onchange="onCompDelShare(this)" data-url="{% url 'toodo:private_completed' todo.id %}">
+                    <label class="form-check-label ms-2" for="defaultCheck{{ todo.id }}" {% if todo.completed %}style="text-decoration: line-through;"{% endif %}>
+                        {{ todo.todo_text }}
+                    </label>
+                    <div class="float-end">
+                        <button type="button" class="btn btn-secondary btn-sm" style="display: none;" onclick="onEdit(this)" data-bs-toggle="modal" data-bs-target="#myModal" data-update-url="{% url 'toodo:private_update' todo.id %}" data-text="{{ todo.todo_text }}">Edit</button>
+                        <button type="button" class="btn btn-danger btn-sm" style="display: none;" onclick="onCompDelShare(this)" data-url="{% url 'toodo:private_delete' todo.id %}">Delete</button>
+                        <button type="button" class="btn btn-danger btn-sm" style="display: none;" onclick="onCompDelShare(this)" data-url="{% url 'toodo:private_share' todo.id %}">Share</button>
+                    </div>
+                </div>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>You have no todos.</p>
+    {% endif %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        function onCompDelShare(item) {
+            const itemUrl = $(item).data('url');
+            $('#mycompdelshareform').attr('action', itemUrl);
+            $('#mycompdelshareform').submit();
+        }
+        function onEdit(item) {
+            const itemUrl = $(item).data('update-url');
+            const itemText = $(item).data('text');
+            $('#edit_todo_text').val(itemText);
+            $('#myeditform').attr('action', itemUrl);
+        }
+        function showOptions(item) {
+            $(item).find('.form-check-input').show();
+            $(item).find('.btn').show();
+        }
+        function hideOptions(item) {
+            $(item).find('.form-check-input').hide();
+            $(item).find('.btn').hide();
+        }
+    </script>
+{% endblock %}

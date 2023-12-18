@@ -1,0 +1,7 @@
+{% extends 'toodo/base.html' %}
+
+{% block extra_content %}
+    {% for todo in public_todos %}
+        <p>{{ todo.todo_text }}</p>
+    {% endfor %}
+{% endblock %}

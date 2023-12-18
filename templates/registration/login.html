@@ -1,0 +1,22 @@
+{% extends 'registration/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <h1 class="mt-2">Log In</h1>
+            <hr class="mt-0 mb-4">
+            <form method="post">
+              {% csrf_token %}
+              {% for field in form %}
+              <div class="form-group col-4">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <input type="{% if field.label == 'Password' %}password{% else %}text{% endif %}" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}">
+              </div>
+              {% endfor %}
+              <button type="submit" class="btn btn-primary mt-2">Log In</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

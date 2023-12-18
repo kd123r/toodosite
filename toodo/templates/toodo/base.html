@@ -1,0 +1,26 @@
+{% extends 'registration/base.html' %}
+
+{% block content %}
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand ms-4" href="#">tooDo</a>
+        <form class="me-4" action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-outline-success" type="submit">Logout</button>
+        </form>
+    </nav>
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'toodo:index' %}">Public</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'private' %}active{% endif %}" href="{% url 'toodo:private' %}">Private</a>
+            </li>
+        </ul>
+        <div class="container mt-4">
+            {% block extra_content %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
