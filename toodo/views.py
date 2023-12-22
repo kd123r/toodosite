@@ -1,10 +1,12 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import PrivateTodo, PublicTodo
 from .forms import PrivateTodoForm
 from django.utils import timezone
-from django.http import HttpResponseRedirect, QueryDict
+from django.http import HttpResponseRedirect, QueryDict, JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 
 @login_required
 def index(request):
@@ -12,12 +14,37 @@ def index(request):
     return render(request, 'toodo/public.html', {'public_todos': public_todos})
 
 def private(request):
-    private_todos = PrivateTodo.objects.filter(user=request.user)
-    return render(request, 'toodo/private.html', {'private_todos': private_todos})
+    # private_todos = PrivateTodo.objects.filter(user=request.user)
+    # return render(request, 'toodo/private.html', {'private_todos': private_todos})
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST' and request.POST.__contains__('todo_text'): 
+        todos = request.POST.getlist('todo_text') 
+        print(todos)
+        forms = []
+        for todo in todos:
+            form = PrivateTodoForm(QueryDict("todo_text=" + todo))
+            try:
+                if form.is_valid():
+                    forms.append(form)
+            except ValidationError:
+                return HttpResponseBadRequest('Invalid request')
+        new_todos = []
+        for form in forms:
+            todo_text = form.cleaned_data['todo_text']
+            t = PrivateTodo(user=request.user, todo_text=todo_text, pub_date=timezone.now()) 
+            t.save()
+            new_todos.append(t) 
+        print(str(len(new_todos)) + ' todo(s) added!')
+        return render(request, 'toodo/todo_items.html', {'todos': new_todos})
+    elif request.method == 'GET':
+        private_todos = PrivateTodo.objects.filter(user=request.user)
+        return render(request, 'toodo/private.html', {'private_todos': private_todos})
+    else:
+        return HttpResponseBadRequest('Invalid request')
 
 @login_required
 def private_create(request):
     if request.method == 'POST' and request.POST.__contains__('todo_text'):
+        print(request.POST)
         for todo in request.POST.getlist('todo_text'):
             form = PrivateTodoForm(QueryDict("todo_text=" + todo))
             if form.is_valid():

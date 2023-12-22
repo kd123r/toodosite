@@ -1,4 +1,5 @@
 {% extends 'toodo/base.html' %}
+{% load static %}
 
 {% block extra_content %}
     <div class="container">
@@ -18,7 +19,7 @@
               </button>
             </div>
             <div class="modal-body">
-              <form id="myform" method="post" action="{% url 'toodo:private_create' %}">
+              <form id="addTodoForm">
                 {% csrf_token %}
                 <div class="form-group col">
                   <input type="text" class="form-control mb-2" id="todo_text" name="todo_text" placeholder="Todo">
@@ -28,7 +29,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="expandForm">Expand</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="myform">Save</button>
+                <button type="submit" class="btn btn-primary" form="addTodoForm" data-bs-dismiss="modal">Save</button>
             </div>
           </div>
         </div>
@@ -59,66 +60,61 @@
     </div>
     {% if private_todos %}
     <ul class="list-group list-group-flush mt-4">
-    {% for todo in private_todos %}
-        <li class="list-group-item list-group-item-action" onmouseover="showOptions(this)" onmouseout="hideOptions(this)">
-            <form id="mycompdelshareform" method="post" class="d-flex">
-                {% csrf_token %}
-                <div class="form-check me-auto">
-                    <input class="form-check-input" type="checkbox" id="defaultCheck{{ todo.id }}" style="display: none;" {% if todo.completed %}checked{% endif %} onchange="onCompDelShare(this)" data-url="{% url 'toodo:private_completed' todo.id %}">
-                    <label class="form-check-label ms-2" for="defaultCheck{{ todo.id }}" {% if todo.completed %}style="text-decoration: line-through;"{% endif %}>
-                        {{ todo.todo_text }}
-                    </label>
-                </div>
-                <div>
-                    <button type="button" class="btn btn-secondary btn-sm" style="display: none;" onclick="onEdit(this)" data-bs-toggle="modal" data-bs-target="#myModal" data-update-url="{% url 'toodo:private_update' todo.id %}" data-text="{{ todo.todo_text }}">Edit</button>
-                    <button type="button" class="btn btn-danger btn-sm" style="display: none;" onclick="onCompDelShare(this)" data-url="{% url 'toodo:private_delete' todo.id %}">Delete</button>
-                    <button type="button" class="btn btn-danger btn-sm" style="display: none;" onclick="onCompDelShare(this)" data-url="{% url 'toodo:private_share' todo.id %}">Share</button>
-                </div>
-            </form>
-        </li>
-    {% endfor %}
+    {% include 'toodo/todo_items.html' with todos=private_todos %}
     </ul>
     {% else %}
     <p>There are no todos to display.</p>
     {% endif %}
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-         $(document).ready(function() {
-            const formFieldsContainer = $('#myform');
-            const expandFormButton = $('#expandForm');
-            const maxExpansions = 5;
-            let expansionCount = 1;
-            expandFormButton.on('click', function() {
-                if (expansionCount < maxExpansions) {
-                    const newInput = $('<div class="form-group col mb-2">' +
-                           '<input type="text" class="form-control" id="todo_text' + expansionCount + '" name="todo_text" placeholder="Todo">' +
-                         '</div>');
-                    formFieldsContainer.append(newInput);
-                    expansionCount++;
-                    if (expansionCount == maxExpansions) {
-                    expandFormButton.hide();
-                    }
-                } 
-            });
-        });
-        function onCompDelShare(item) {
-            const itemUrl = $(item).data('url');
-            $('#mycompdelshareform').attr('action', itemUrl);
-            $('#mycompdelshareform').submit();
+      $("#addTodoForm").on('submit', (e) => {
+        // prevent page reload
+        e.preventDefault();
+        // get the values from the form fields
+        const url = "{% url 'toodo:private' %}"
+        const formData = {
+          todo_text: addTodoForm.elements["todo_text"].value,
         }
-        function onEdit(item) {
-            const itemUrl = $(item).data('update-url');
-            const itemText = $(item).data('text');
-            $('#edit_todo_text').val(itemText);
-            $('#myeditform').attr('action', itemUrl);
-        }
-        function showOptions(item) {
-            $(item).find('.form-check-input').show();
-            $(item).find('.btn').show();
-        }
-        function hideOptions(item) {
-            $(item).find('.form-check-input').hide();
-            $(item).find('.btn').hide();
-        }
+        addTodo(url, formData);
+        $("#addTodoForm").trigger("reset");
+      });
+      $(document).ready(function() {
+          const formFieldsContainer = $('#myform');
+          const expandFormButton = $('#expandForm');
+          const maxExpansions = 5;
+          let expansionCount = 1;
+          expandFormButton.on('click', function() {
+              if (expansionCount < maxExpansions) {
+                  const newInput = $('<div class="form-group col mb-2">' +
+                          '<input type="text" class="form-control" id="todo_text' + expansionCount + '" name="todo_text" placeholder="Todo">' +
+                        '</div>');
+                  formFieldsContainer.append(newInput);
+                  expansionCount++;
+                  if (expansionCount == maxExpansions) {
+                  expandFormButton.hide();
+                  }
+              } 
+          });
+      });
+      function onCompDelShare(item) {
+          const itemUrl = $(item).data('url');
+          $('#mycompdelshareform').attr('action', itemUrl);
+          $('#mycompdelshareform').submit();
+      }
+      function onEdit(item) {
+          const itemUrl = $(item).data('update-url');
+          const itemText = $(item).data('text');
+          $('#edit_todo_text').val(itemText);
+          $('#myeditform').attr('action', itemUrl);
+      }
+      function showOptions(item) {
+          $(item).find('.form-check-input').show();
+          $(item).find('.btn').show();
+      }
+      function hideOptions(item) {
+          $(item).find('.form-check-input').hide();
+          $(item).find('.btn').hide();
+      }
     </script>
+    <script src="{% static 'toodo/script.js' %}"></script>
 {% endblock %}
