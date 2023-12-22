@@ -62,6 +62,17 @@ def private_update(request, todo_id):
         if request.method == 'DELETE':
             todo_update.delete()
             return JsonResponse({'deleted': todo_id})
+        elif request.method == 'PUT':
+            put = QueryDict(request.body)
+            form = PrivateTodoForm(put)
+            try:
+                if form.is_valid():
+                    todo_update.todo_text = form.cleaned_data['todo_text']
+                    todo_update.pub_date = timezone.now()
+                    todo_update.save()
+                return JsonResponse({'updated': todo_id})
+            except ValidationError:
+                return JsonResponse({'status': 'Invalid request'}, status=400)
         return JsonResponse({'status': 'Invalid request'}, status=400)
     else:
         return HttpResponseBadRequest('Invalid request')

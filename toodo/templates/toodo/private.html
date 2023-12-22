@@ -28,7 +28,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="expandForm">Expand</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="addTodoForm" data-bs-dismiss="modal">Save</button>
+                <button type="submit" class="btn btn-primary" form="addTodoForm">Save</button>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@
               </button>
             </div>
             <div class="modal-body">
-              <form id="myeditform" method="post">
+              <form id="editTodoForm" method="post">
                 <div class="form-group col">
                     <input type="text" class="form-control" id="edit_todo_text" name="todo_text">
                 </div>
@@ -51,32 +51,45 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary" form="myeditform">Save</button>
+              <button type="submit" class="btn btn-primary" form="editTodoForm">Save</button>
             </div>
           </div>
         </div>
     </div>
-    {% if private_todos %}
     <ul class="list-group list-group-flush mt-4">
     {% include 'toodo/todo_items.html' with todos=private_todos %}
     </ul>
-    {% else %}
-    <p>There are no todos to display.</p>
-    {% endif %}
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
       $("#addTodoForm").on('submit', (e) => {
         e.preventDefault();
-        const url = "{% url 'toodo:private' %}"
+        $('#exampleModal').modal('hide');
+        const url = "{% url 'toodo:private' %}";
         const formData = {
           todo_text: addTodoForm.elements["todo_text"].value,
-        }
+        };
         addTodo(url, formData);
         $("#addTodoForm").trigger("reset");
       });
+      $("#editTodoForm").on('submit', (e) => {
+        e.preventDefault();
+        $('#myModal').modal('hide');
+        const url = $('#editTodoForm').attr('action');
+        const formData = {
+          todo_text: editTodoForm.elements["todo_text"].value,
+        };
+        updateTodo(url, formData);
+        $("#editTodoForm").trigger("reset");
+      });
       $(document).on('click', '.delete-btn', function() {
           const url = $(this).data('url');
-          deleteTodo(url)
+          deleteTodo(url);
+      });
+      $(document).on('click', '.edit-btn', function() {
+          const url = $(this).data('url');
+          const text = $(this).data('text');
+          $('#edit_todo_text').val(text);
+          $('#editTodoForm').attr('action', url);
       });
       $(document).ready(function() {
           const formFieldsContainer = $('#myform');

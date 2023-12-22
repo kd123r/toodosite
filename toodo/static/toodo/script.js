@@ -44,10 +44,31 @@ function deleteTodo(url) {
       },
       success: (data) => {
         console.log(data);
-        $("#todo" + data.deleted).remove()
+        $("#todo" + data.deleted).remove();
       },
       error: (error) => {
         console.error(error);
       }
+    });
+}
+
+function updateTodo(url, payload) {
+    $.ajax({
+        url: url,
+        type: "PUT",
+        dataType: "json",
+        data: payload,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        success: (data) => {
+            console.log(data);
+            $("#todoCheckbox" + data.updated).next(".form-check-label").text(payload.todo_text);
+            $("#todoEditButton" + data.updated).data('text', payload.todo_text);
+        },
+        error: (error) => {
+            console.log(error);
+        }
     });
 }
