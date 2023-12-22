@@ -13,6 +13,7 @@ def index(request):
     public_todos = PublicTodo.objects.all()
     return render(request, 'toodo/public.html', {'public_todos': public_todos})
 
+@login_required
 def private(request):
     # private_todos = PrivateTodo.objects.filter(user=request.user)
     # return render(request, 'toodo/private.html', {'private_todos': private_todos})
@@ -56,14 +57,25 @@ def private_create(request):
 
 @login_required
 def private_update(request, todo_id):
-    if request.method == 'POST':
-        form = PrivateTodoForm(request.POST)
-        if form.is_valid():
-            todo_edit = get_object_or_404(PrivateTodo, pk=todo_id)
-            todo_edit.todo_text = form.cleaned_data['todo_text']
-            todo_edit.pub_date = timezone.now()
-            todo_edit.save()
-    return HttpResponseRedirect(reverse('toodo:private'))
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        todo_update = get_object_or_404(PrivateTodo, pk=todo_id)
+        if request.method == 'DELETE':
+            todo_update.delete()
+            return JsonResponse({'deleted': todo_id})
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request')
+
+
+
+    # if request.method == 'POST':
+    #     form = PrivateTodoForm(request.POST)
+    #     if form.is_valid():
+    #         todo_edit = get_object_or_404(PrivateTodo, pk=todo_id)
+    #         todo_edit.todo_text = form.cleaned_data['todo_text']
+    #         todo_edit.pub_date = timezone.now()
+    #         todo_edit.save()
+    # return HttpResponseRedirect(reverse('toodo:private'))
 
 @login_required
 def private_delete(request, todo_id):

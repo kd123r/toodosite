@@ -20,7 +20,6 @@
             </div>
             <div class="modal-body">
               <form id="addTodoForm">
-                {% csrf_token %}
                 <div class="form-group col">
                   <input type="text" class="form-control mb-2" id="todo_text" name="todo_text" placeholder="Todo">
                 </div>
@@ -45,7 +44,6 @@
             </div>
             <div class="modal-body">
               <form id="myeditform" method="post">
-                {% csrf_token %}
                 <div class="form-group col">
                     <input type="text" class="form-control" id="edit_todo_text" name="todo_text">
                 </div>
@@ -68,15 +66,17 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
       $("#addTodoForm").on('submit', (e) => {
-        // prevent page reload
         e.preventDefault();
-        // get the values from the form fields
         const url = "{% url 'toodo:private' %}"
         const formData = {
           todo_text: addTodoForm.elements["todo_text"].value,
         }
         addTodo(url, formData);
         $("#addTodoForm").trigger("reset");
+      });
+      $(document).on('click', '.delete-btn', function() {
+          const url = $(this).data('url');
+          deleteTodo(url)
       });
       $(document).ready(function() {
           const formFieldsContainer = $('#myform');

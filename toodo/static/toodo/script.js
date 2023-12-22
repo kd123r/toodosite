@@ -27,8 +27,27 @@ function addTodo(url, payload) {
       success: (data) => {
         $('.list-group').append(data);
       },
-      error: () => {
-        console.error("Error adding new todo(s)");
+      error: (error) => {
+        console.error(error);
+      }
+    });
+}
+
+function deleteTodo(url) {
+    $.ajax({
+      url: url,
+      type: "DELETE",
+      dataType: "json",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      success: (data) => {
+        console.log(data);
+        $("#todo" + data.deleted).remove()
+      },
+      error: (error) => {
+        console.error(error);
       }
     });
 }
