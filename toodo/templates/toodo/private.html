@@ -85,12 +85,14 @@
           const url = $(this).data('url');
           deleteTodo(url);
       });
-      $(document).on('click', '.edit-btn', function() {
+      $(document).on('change', '.form-check-input', function() {
           const url = $(this).data('url');
-          const text = $(this).data('text');
-          $('#edit_todo_text').val(text);
-          $('#editTodoForm').attr('action', url);
+          const formData = {
+            completed: $(this).is(':checked'),
+          };
+          completedTodo(url, formData);
       });
+      
       $(document).ready(function() {
           const formFieldsContainer = $('#myform');
           const expandFormButton = $('#expandForm');

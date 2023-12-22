@@ -2,8 +2,8 @@
     <li class="list-group-item list-group-item-action" id="todo{{ todo.id }}">
         <div class="d-flex">
         <div class="me-auto">
-            <input class="form-check-input me-2" type="checkbox" id="todoCheckbox{{ todo.id }}">
-            <label class="form-check-label" for="todoCheckbox{{ todo.id }}">
+            <input class="form-check-input me-2" type="checkbox" id="todoCheckbox{{ todo.id }}" {% if todo.completed %}checked{% endif %} data-url="{% url 'toodo:private_update' todo.id %}">
+            <label class="form-check-label {% if todo.completed %}text-decoration-line-through{% endif %}" for="todoCheckbox{{ todo.id }}">
                 {{ todo.todo_text }}
             </label>
         </div>

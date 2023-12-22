@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import PrivateTodo, PublicTodo
-from .forms import PrivateTodoForm
+from .forms import PrivateTodoForm, PrivateTodoCompletedForm
 from django.utils import timezone
 from django.http import HttpResponseRedirect, QueryDict, JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
@@ -39,8 +39,7 @@ def private(request):
     elif request.method == 'GET':
         private_todos = PrivateTodo.objects.filter(user=request.user)
         return render(request, 'toodo/private.html', {'private_todos': private_todos})
-    else:
-        return HttpResponseBadRequest('Invalid request')
+    return HttpResponseBadRequest('Invalid request')
 
 @login_required
 def private_create(request):
@@ -64,18 +63,28 @@ def private_update(request, todo_id):
             return JsonResponse({'deleted': todo_id})
         elif request.method == 'PUT':
             put = QueryDict(request.body)
-            form = PrivateTodoForm(put)
-            try:
-                if form.is_valid():
-                    todo_update.todo_text = form.cleaned_data['todo_text']
-                    todo_update.pub_date = timezone.now()
-                    todo_update.save()
-                return JsonResponse({'updated': todo_id})
-            except ValidationError:
-                return JsonResponse({'status': 'Invalid request'}, status=400)
+            if put.__contains__('todo_text'):
+                form = PrivateTodoForm(put)
+                try:
+                    if form.is_valid():
+                        todo_update.todo_text = form.cleaned_data['todo_text']
+                        todo_update.pub_date = timezone.now()
+                        todo_update.save()
+                    return JsonResponse({'updated': todo_id})
+                except ValidationError:
+                    return JsonResponse({'status': 'Invalid request'}, status=400)
+            elif put.__contains__('completed'):
+                form = PrivateTodoCompletedForm(put)
+                try:
+                    if form.is_valid():
+                        todo_update.completed = form.cleaned_data['completed']
+                        todo_update.save()
+                    return JsonResponse({'updated': todo_id})
+                except ValidationError:
+                    return JsonResponse({'status': 'Invalid request'}, status=400)
+            return JsonResponse({'status': 'Invalid request'}, status=400)
         return JsonResponse({'status': 'Invalid request'}, status=400)
-    else:
-        return HttpResponseBadRequest('Invalid request')
+    return HttpResponseBadRequest('Invalid request')
 
 
 

@@ -72,3 +72,23 @@ function updateTodo(url, payload) {
         }
     });
 }
+
+function completedTodo(url, payload) {
+    $.ajax({
+        url: url,
+        type: "PUT",
+        dataType: "json",
+        data: payload,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        success: (data) => {
+            console.log(data);
+            $("#todoCheckbox" + data.updated).next(".form-check-label").toggleClass("text-decoration-line-through", payload.completed);
+        },
+        error: (error) => {
+            console.log(error);
+        }
+    });
+}
