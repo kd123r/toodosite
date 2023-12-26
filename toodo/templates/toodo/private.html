@@ -56,7 +56,8 @@
     {% include 'toodo/todo_items.html' with todos=private_todos %}
     </ul>
     <p id="noTodoMsg" style="display: none;">There are no todos to display.</p>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+{% endblock %}
+{% block javascript %}
     <script>
       $("#addTodoForm").on('submit', (e) => {
         e.preventDefault();

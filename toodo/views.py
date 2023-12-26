@@ -27,24 +27,34 @@ def index(request):
 
 @login_required
 def private(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST' and request.POST.__contains__('todo_text[]'): 
-        todos = request.POST.getlist('todo_text[]') 
-        forms = []
-        for todo in todos:
-            form = PrivateTodoForm(QueryDict("todo_text=" + todo))
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST' and (request.POST.__contains__('todo_text[]') or request.POST.__contains__('todo_text')): 
+        if request.POST.__contains__('todo_text[]'):
+            todos = request.POST.getlist('todo_text[]') 
+            forms = []
+            for todo in todos:
+                form = PrivateTodoForm(QueryDict("todo_text=" + todo))
+                try:
+                    if form.is_valid():
+                        forms.append(form)
+                except ValidationError:
+                    return HttpResponseBadRequest('Invalid request')
+            new_todos = []
+            for form in forms:
+                todo_text = form.cleaned_data['todo_text']
+                t = PrivateTodo(user=request.user, todo_text=todo_text, pub_date=timezone.now()) 
+                t.save()
+                new_todos.append(t) 
+            print(str(len(new_todos)) + ' todo(s) added!')
+            return render(request, 'toodo/todo_items.html', {'todos': new_todos})
+        else:
+            form = PrivateTodoForm(request.POST)
             try:
                 if form.is_valid():
-                    forms.append(form)
+                    t = PrivateTodo(user=request.user, todo_text=form.cleaned_data['todo_text'], pub_date=timezone.now()) 
+                    t.save()
+                return JsonResponse({'status': 'Added!'})
             except ValidationError:
-                return HttpResponseBadRequest('Invalid request')
-        new_todos = []
-        for form in forms:
-            todo_text = form.cleaned_data['todo_text']
-            t = PrivateTodo(user=request.user, todo_text=todo_text, pub_date=timezone.now()) 
-            t.save()
-            new_todos.append(t) 
-        print(str(len(new_todos)) + ' todo(s) added!')
-        return render(request, 'toodo/todo_items.html', {'todos': new_todos})
+                return JsonResponse({'status': 'Invalid request'}, status=400)
     elif request.method == 'GET':
         private_todos = PrivateTodo.objects.filter(user=request.user)
         return render(request, 'toodo/private.html', {'private_todos': private_todos})
