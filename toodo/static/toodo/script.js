@@ -18,7 +18,6 @@ function addTodo(url, payload) {
     $.ajax({
       url: url,
       type: "POST",
-      dataType: "html",
       data: payload,
       headers: {
         "X-Requested-With": "XMLHttpRequest",
@@ -38,7 +37,6 @@ function deleteTodo(url) {
     $.ajax({
       url: url,
       type: "DELETE",
-      dataType: "json",
       headers: {
         "X-Requested-With": "XMLHttpRequest",
         "X-CSRFToken": getCookie("csrftoken"),
@@ -58,7 +56,6 @@ function updateTodo(url, payload) {
     $.ajax({
         url: url,
         type: "PUT",
-        dataType: "json",
         data: payload,
         headers: {
             "X-Requested-With": "XMLHttpRequest",
@@ -68,6 +65,7 @@ function updateTodo(url, payload) {
             console.log(data);
             $("#todoCheckbox" + data.updated).next(".form-check-label").text(payload.todo_text);
             $("#todoEditButton" + data.updated).data('text', payload.todo_text);
+            $("#todoShareButton" + data.updated).data('text', payload.todo_text);
         },
         error: (error) => {
             console.log(error);
@@ -79,7 +77,6 @@ function completedTodo(url, payload) {
     $.ajax({
         url: url,
         type: "PUT",
-        dataType: "json",
         data: payload,
         headers: {
             "X-Requested-With": "XMLHttpRequest",
@@ -95,10 +92,28 @@ function completedTodo(url, payload) {
     });
 }
 
+function shareTodo(url, payload) {
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: payload,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      success: (data) => {
+        console.log(data);
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+}
+
 function showOrHideNoTodo() {
     if ($("#todolist li").length === 0) {
       $("#noTodoMsg").show();
     } else if ($("#todolist li").length > 0) {
       $("#noTodoMsg").hide();
     }
-  }
+}

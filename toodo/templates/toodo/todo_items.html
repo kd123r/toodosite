@@ -10,7 +10,7 @@
         <div>
             <button type="button" style="display: none;" id="todoEditButton{{ todo.id }}" class="btn btn-secondary btn-sm edit-btn" data-bs-toggle="modal" data-bs-target="#myModal" data-url="{% url 'toodo:private_update' todo.id %}" data-text="{{ todo.todo_text }}">Edit</button>
             <button type="button" style="display: none;" class="btn btn-danger btn-sm delete-btn" data-url="{% url 'toodo:private_update' todo.id %}">Delete</button>
-            <button type="button" style="display: none;" class="btn btn-danger btn-sm">Share</button>
+            <button type="button" style="display: none;" id="todoShareButton{{ todo.id }}" class="btn btn-danger btn-sm share-btn" data-text="{{ todo.todo_text }}">Share</button>
         </div>
         </div>
     </li>
