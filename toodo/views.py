@@ -1,11 +1,9 @@
-import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import PrivateTodo, PublicTodo
 from .forms import PrivateTodoForm, PrivateTodoCompletedForm
 from django.utils import timezone
-from django.http import HttpResponseRedirect, QueryDict, JsonResponse, HttpResponseBadRequest
-from django.urls import reverse
+from django.http import QueryDict, JsonResponse, HttpResponseBadRequest
 from django.core.exceptions import ValidationError
 
 @login_required
