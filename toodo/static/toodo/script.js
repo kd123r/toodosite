@@ -26,6 +26,7 @@ function addTodo(url, payload) {
       },
       success: (data) => {
         $('.list-group').append(data);
+        showOrHideNoTodo();
       },
       error: (error) => {
         console.error(error);
@@ -45,6 +46,7 @@ function deleteTodo(url) {
       success: (data) => {
         console.log(data);
         $("#todo" + data.deleted).remove();
+        showOrHideNoTodo();
       },
       error: (error) => {
         console.error(error);
@@ -92,3 +94,11 @@ function completedTodo(url, payload) {
         }
     });
 }
+
+function showOrHideNoTodo() {
+    if ($("#todolist li").length === 0) {
+      $("#noTodoMsg").show();
+    } else if ($("#todolist li").length > 0) {
+      $("#noTodoMsg").hide();
+    }
+  }
