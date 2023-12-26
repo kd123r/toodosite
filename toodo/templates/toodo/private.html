@@ -20,15 +20,15 @@
             </div>
             <div class="modal-body">
               <form id="addTodoForm">
-                <div class="form-group col">
-                  <input type="text" class="form-control mb-2" id="todo_text" name="todo_text" placeholder="Todo">
+                <div class="form-group col mb-2">
+                  <input type="text" class="form-control" id="todo_text" name="todo_text" placeholder="Todo">
                 </div>
               </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="expandForm">Expand</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary" form="addTodoForm">Save</button>
+                <button type="submit" class="btn btn-primary" form="addTodoForm" id="saveForm">Save</button>
             </div>
           </div>
         </div>
@@ -65,11 +65,18 @@
         e.preventDefault();
         $('#exampleModal').modal('hide');
         const url = "{% url 'toodo:private' %}";
+        const todoTextFields = $("#addTodoForm").find('[name="todo_text"]');
+        const todo_text = []
+        todoTextFields.each(function(index, field) {
+          const todoTextValue = $(field).val();
+          todo_text.push(todoTextValue)
+        });
         const formData = {
-          todo_text: addTodoForm.elements["todo_text"].value,
+          'todo_text': todo_text,
         };
         addTodo(url, formData);
         $("#addTodoForm").trigger("reset");
+        $('.removable').remove();
       });
       $("#editTodoForm").on('submit', (e) => {
         e.preventDefault();
@@ -92,15 +99,15 @@
           };
           completedTodo(url, formData);
       });
-      
       $(document).ready(function() {
-          const formFieldsContainer = $('#myform');
+          const formFieldsContainer = $('#addTodoForm');
           const expandFormButton = $('#expandForm');
+          const saveFormButton = $('#saveForm');
           const maxExpansions = 5;
           let expansionCount = 1;
           expandFormButton.on('click', function() {
               if (expansionCount < maxExpansions) {
-                  const newInput = $('<div class="form-group col mb-2">' +
+                  const newInput = $('<div class="form-group col mb-2 removable">' +
                           '<input type="text" class="form-control" id="todo_text' + expansionCount + '" name="todo_text" placeholder="Todo">' +
                         '</div>');
                   formFieldsContainer.append(newInput);
@@ -109,6 +116,10 @@
                   expandFormButton.hide();
                   }
               } 
+          });
+          saveFormButton.on('click', function() {
+              expansionCount = 1
+              expandFormButton.show()
           });
       });
       function onCompDelShare(item) {

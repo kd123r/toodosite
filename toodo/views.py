@@ -17,9 +17,8 @@ def index(request):
 def private(request):
     # private_todos = PrivateTodo.objects.filter(user=request.user)
     # return render(request, 'toodo/private.html', {'private_todos': private_todos})
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST' and request.POST.__contains__('todo_text'): 
-        todos = request.POST.getlist('todo_text') 
-        print(todos)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'POST' and request.POST.__contains__('todo_text[]'): 
+        todos = request.POST.getlist('todo_text[]') 
         forms = []
         for todo in todos:
             form = PrivateTodoForm(QueryDict("todo_text=" + todo))
