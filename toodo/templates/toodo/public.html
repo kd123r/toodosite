@@ -1,4 +1,5 @@
 {% extends 'toodo/base.html' %}
+{% load static %}
 
 {% block extra_content %}
     {% if public_todos %}
@@ -10,11 +11,27 @@
                 <small>{{ todo.pub_date|date:"SHORT_DATETIME_FORMAT" }}</small>
             </div>
             <p class="mb-2">{{ todo.todo_text }}</p>
-            <small class="text-muted">upvotes: {{ todo.upvotes }}</small>
+            <button type="button" class="btn btn-primary btn-sm">Upvote</button>
+            <small class="text-muted">{{ todo.upvotes }}</small>
+            <button type="button" class="btn btn-primary btn-sm add-btn" data-text="{{ todo.todo_text }}">Add To Private</button>
         </li>
     {% endfor %}
     </ul>
     {% else %}
     <p>There are no todos to display.</p>
     {% endif %}
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).on('click', '.add-btn', function() {
+        const url = "{% url 'toodo:private' %}";
+        const text = $(this).data('text');
+        const formData = {
+          'todo_text': text,
+        };
+        addTodoToPrivate(url, formData);
+    });
+</script>
+<script src="{% static 'toodo/publicscripts.js' %}"></script>
 {% endblock %}

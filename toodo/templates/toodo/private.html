@@ -57,6 +57,7 @@
     </ul>
     <p id="noTodoMsg" style="display: none;">There are no todos to display.</p>
 {% endblock %}
+
 {% block javascript %}
     <script>
       $("#addTodoForm").on('submit', (e) => {
@@ -145,5 +146,5 @@
           });
       });
     </script>
-    <script src="{% static 'toodo/script.js' %}"></script>
+    <script src="{% static 'toodo/privatescripts.js' %}"></script>
 {% endblock %}
