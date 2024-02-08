@@ -6,3 +6,7 @@ class PrivateTodoForm(forms.Form):
 class PrivateTodoCompletedForm(forms.Form):
     completed = forms.BooleanField(required=False)
 
+class PublicTodoUpvotesForm(forms.Form):
+    upvotes = forms.IntegerField()
+
+

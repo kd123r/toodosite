@@ -31,3 +31,23 @@ function addTodoToPrivate(url, payload) {
       }
     });
 }
+
+function updateTodoUpvotes(url, payload) {
+  $.ajax({
+      url: url,
+      type: "PUT",
+      data: payload,
+      headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": getCookie("csrftoken"),
+      },
+      success: (data) => {
+          console.log(data);
+          $("#upvoteButton" + data.updated).data('upvotes', payload.upvotes);
+          $("#upvoteDisplay" + data.updated).text(payload.upvotes);
+      },
+      error: (error) => {
+          console.log(error);
+      }
+  });
+}

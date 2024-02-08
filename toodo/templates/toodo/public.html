@@ -11,8 +11,8 @@
                 <small>{{ todo.pub_date|date:"SHORT_DATETIME_FORMAT" }}</small>
             </div>
             <p class="mb-2">{{ todo.todo_text }}</p>
-            <button type="button" class="btn btn-primary btn-sm">Upvote</button>
-            <small class="text-muted">{{ todo.upvotes }}</small>
+            <button id="upvoteButton{{ todo.id }}" type="button" class="btn btn-primary btn-sm upvote-btn" data-url="{% url 'toodo:public_update' todo.id %}" data-upvotes={{ todo.upvotes }}>Upvote</button>
+            <small id="upvoteDisplay{{ todo.id }}" class="text-muted">{{ todo.upvotes }}</small>
             <button type="button" class="btn btn-primary btn-sm add-btn" data-text="{{ todo.todo_text }}">Add To Private</button>
         </li>
     {% endfor %}
@@ -31,6 +31,14 @@
           'todo_text': text,
         };
         addTodoToPrivate(url, formData);
+    });
+    $(document).on('click', '.upvote-btn', function() {
+        const url = $(this).data('url');
+        const upvotes = $(this).data('upvotes') + 1;
+        const formData = {
+            'upvotes': upvotes,
+        };
+        updateTodoUpvotes(url, formData);
     });
 </script>
 <script src="{% static 'toodo/publicscripts.js' %}"></script>
